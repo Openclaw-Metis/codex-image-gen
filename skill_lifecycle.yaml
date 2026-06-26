@@ -1,0 +1,38 @@
+name: codex-image-gen
+status: draft
+owner: "Openclaw-Metis"
+archetype: ops
+primary_structure_pattern: pipeline
+lifecycle:
+  created_at: 2026-06-26
+  last_validated_at: null
+  last_released_at: null
+  review_interval_days: 60
+  next_review_due: 2026-08-25
+support:
+  primary_hosts:
+    - agent-skills
+  secondary_hosts: []
+  unsupported_hosts: []
+risk:
+  external_side_effects: false
+  requires_secrets: false
+  data_sensitivity: low
+dependencies:
+  scripts:
+    - scripts/codex_image.py
+  references:
+    - references/readiness_report.md
+stewardship:
+  reviewers: []
+  stale_after_days: 120
+  escalation:
+    stale: needs-maintenance
+    no_owner: orphaned
+portfolio:
+  overlaps_with: []
+  hands_off_to: []
+  depends_on: []
+  supersedes: []
+  deprecated_by: null
+  shares_tool_contract_with: []

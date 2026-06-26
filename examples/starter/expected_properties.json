@@ -1,0 +1,12 @@
+{
+  "must_include_sections": [
+    "結論",
+    "影像規格"
+  ],
+  "must_not_include": [
+    "TODO",
+    "待補",
+    "codex exec"
+  ],
+  "minimum_use_cases": 0
+}

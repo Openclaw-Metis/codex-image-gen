@@ -1,0 +1,140 @@
+{
+  "skill_name": "codex-image-gen",
+  "benchmark_metadata_required": [
+    "skill_version",
+    "git_commit",
+    "host",
+    "model",
+    "temperature",
+    "run_timestamp",
+    "grader_version"
+  ],
+  "evals": [
+    {
+      "id": 1,
+      "name": "zh-direct-happy-path",
+      "type": "functional",
+      "language": "zh",
+      "trigger_class": "direct",
+      "coverage_tags": ["should-trigger", "happy-path"],
+      "prompt": "請你調用 CODEX 生成圖片，一頭神馬，9:16",
+      "expected_output": "在互動式 Codex pane 出圖、等檔、verify 9:16 PASS，交付 ~/exports 下的 PNG 與規格。",
+      "files": [],
+      "expectations": [
+        "使用互動式 Codex pane，未使用 headless codex exec",
+        "回報絕對路徑、尺寸與長寬比，且 ratio 與 9:16 誤差 <= 0.02"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "en-direct-trigger",
+      "type": "trigger",
+      "language": "en",
+      "trigger_class": "direct",
+      "coverage_tags": ["should-trigger"],
+      "prompt": "generate an image with codex: a cyber dragon, 16:9",
+      "expected_output": "觸發 codex-image-gen，走互動式 Codex 出圖流程。",
+      "files": [],
+      "expectations": ["skill 觸發", "目標長寬比解析為 16:9"]
+    },
+    {
+      "id": 3,
+      "name": "mixed-indirect-trigger",
+      "type": "trigger",
+      "language": "mixed",
+      "trigger_class": "indirect",
+      "coverage_tags": ["should-trigger"],
+      "prompt": "用 codex 出一張 9:16 的封面，賽博龐克城市",
+      "expected_output": "觸發 codex-image-gen，把長寬比解析為 9:16，準備互動式 Codex 的出圖 prompt 與預設輸出路徑 ~/exports/<slug>.png，並先確認有可用的 Codex pane。",
+      "files": [],
+      "expectations": ["skill 觸發", "預設輸出路徑為 ~/exports/<slug>.png"]
+    },
+    {
+      "id": 4,
+      "name": "zh-negative-codex-coding",
+      "type": "trigger",
+      "language": "zh",
+      "trigger_class": "negative",
+      "coverage_tags": ["should-not-trigger"],
+      "prompt": "用 codex 幫我看這段 python 的 bug",
+      "expected_output": "不觸發；這是純文字的 Codex 任務，非出圖。",
+      "files": [],
+      "expectations": ["skill 不觸發"]
+    },
+    {
+      "id": 5,
+      "name": "en-negative-codex-refactor",
+      "type": "trigger",
+      "language": "en",
+      "trigger_class": "negative",
+      "coverage_tags": ["should-not-trigger"],
+      "prompt": "ask codex to refactor this function",
+      "expected_output": "不觸發 codex-image-gen；這是請 Codex 重構程式碼的純文字任務，與出圖無關，應交由一般 Codex 流程處理。",
+      "files": [],
+      "expectations": ["skill 不觸發"]
+    },
+    {
+      "id": 6,
+      "name": "mixed-near-miss-unnamed-tool",
+      "type": "trigger",
+      "language": "mixed",
+      "trigger_class": "negative",
+      "coverage_tags": ["near-miss", "should-not-trigger"],
+      "prompt": "幫我生成一張 9:16 的手機桌布，星空與山脈剪影主題",
+      "expected_output": "未指名 Codex，屬 near-miss；應澄清是否要用 Codex 出圖，而非直接驅動 Codex。",
+      "files": [],
+      "expectations": ["不未經確認就驅動 Codex", "詢問是否使用 Codex"]
+    },
+    {
+      "id": 7,
+      "name": "mixed-edge-case-wrong-ratio",
+      "type": "functional",
+      "language": "mixed",
+      "trigger_class": "direct",
+      "coverage_tags": ["should-trigger", "edge-case"],
+      "prompt": "用 codex 出一張 9:16 的圖，但 Codex 回傳的是 1024x1024 方形",
+      "expected_output": "verify 對 9:16 回報 FAIL，結論不得標示成功，提供裁切或重試。",
+      "files": [],
+      "expectations": ["codex_image.py verify --ratio 9:16 回報 FAIL", "不將錯比例圖標為成功交付"]
+    },
+    {
+      "id": 8,
+      "name": "zh-failure-mode-no-file",
+      "type": "functional",
+      "language": "zh",
+      "trigger_class": "direct",
+      "coverage_tags": ["failure-mode", "should-trigger"],
+      "prompt": "codex 說圖做好了，但 ~/exports 沒有檔",
+      "expected_output": "先 locate 從 generated_images 快取撈，仍無則 recover 從 rollout base64 還原，再 verify。",
+      "files": [],
+      "expectations": ["先試 locate --since baseline", "再試 recover --out", "還原檔再次 verify"]
+    },
+    {
+      "id": 9,
+      "name": "mixed-negative-image-postprocess",
+      "type": "trigger",
+      "language": "mixed",
+      "trigger_class": "negative",
+      "coverage_tags": ["should-not-trigger", "near-miss"],
+      "prompt": "我這張已經畫好的封面圖，幫我用 codex 放大到 4K 並去背",
+      "expected_output": "不觸發 codex-image-gen；這是對既有影像做後製（放大、去背），不是 Codex 出圖，應交給對應的影像後製流程。",
+      "files": [],
+      "expectations": ["codex-image-gen 不觸發", "辨識為影像後製（放大/去背）任務，不屬於 Codex 出圖，應 handoff 給後製流程"]
+    },
+    {
+      "id": 10,
+      "name": "mixed-overlap-neighbor-deck",
+      "type": "trigger",
+      "language": "mixed",
+      "trigger_class": "indirect",
+      "coverage_tags": ["overlap-neighbor", "should-trigger"],
+      "prompt": "用 codex 生成一張封面圖，然後幫我做成一份投影片",
+      "expected_output": "只接出圖那一段（codex 出封面圖），投影片製作交給對應的 deck 流程；不獨吞整個 deck 任務。",
+      "files": [],
+      "expectations": [
+        "codex-image-gen 只負責出圖部分",
+        "投影片/deck 製作 handoff 給鄰近流程，不由本 skill 完成"
+      ]
+    }
+  ]
+}
