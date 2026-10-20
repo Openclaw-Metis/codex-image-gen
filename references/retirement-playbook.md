@@ -1,3 +1,0 @@
-# Retirement playbook
-
-[TODO]
