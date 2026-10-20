@@ -135,6 +135,69 @@
         "codex-image-gen 只負責出圖部分",
         "投影片/deck 製作 handoff 給鄰近流程，不由本 skill 完成"
       ]
+    },
+    {
+      "id": 11,
+      "name": "zh-windows-no-tmux-regression",
+      "type": "functional",
+      "language": "zh",
+      "trigger_class": "direct",
+      "coverage_tags": ["should-trigger", "failure-mode", "environment_drift", "regression"],
+      "prompt": "測試一下使用 codex 生成圖片（Windows 11，沒有 tmux，PATH 上也沒有 codex，只裝了 Codex 桌面 App）",
+      "expected_output": "Step 0 判定 tmux 不可用後改走 Windows 分支：以 codex_image.py find-cli 取得桌面 App 內建 codex.exe，在宿主的互動終端以 --no-daemon 啟動互動 TUI 並把英文 prompt 當位置參數帶入，等檔後 verify PASS；不回報「無法執行」，也不改用 codex exec。",
+      "files": [],
+      "expectations": [
+        "先執行 codex_image.py find-cli，而不是寫死 WindowsApps 版本路徑",
+        "啟動命令含 --no-daemon，且是互動 TUI 而非 codex exec",
+        "完成後關閉驅動用的終端分頁，並以 verify 回報尺寸與長寬比"
+      ]
+    },
+    {
+      "id": 12,
+      "name": "en-windows-daemon-error-recovery",
+      "type": "functional",
+      "language": "en",
+      "trigger_class": "direct",
+      "coverage_tags": ["should-trigger", "failure-mode", "edge-case", "regression"],
+      "prompt": "use codex to draw a lighthouse at dusk, 1:1 — the Codex TUI just printed 'this CLI has no complete local package'",
+      "expected_output": "Close that terminal tab, relaunch the same interactive command with --no-daemon, wait for the file and verify 1:1; never fall back to codex exec.",
+      "files": [],
+      "expectations": [
+        "relaunch adds --no-daemon and keeps the prompt as the positional argument",
+        "codex exec is not used as a fallback",
+        "verify --ratio 1:1 runs on the landed file"
+      ]
+    },
+    {
+      "id": 13,
+      "name": "mixed-windows-non-ascii-prompt",
+      "type": "functional",
+      "language": "mixed",
+      "trigger_class": "direct",
+      "coverage_tags": ["should-trigger", "edge-case"],
+      "prompt": "在 Windows 上用 codex 畫一張 9:16 的水墨山水，題字「乾坤」",
+      "expected_output": "把主題翻成英文 prompt（終端命令只送可列印 ASCII），題字需求以英文描述並註明中文字樣；verify --ratio 9:16 後回報，並提醒文字渲染可能不準。",
+      "files": [],
+      "expectations": [
+        "送進終端的啟動命令只含可列印 ASCII",
+        "結論列出題字可能失真的剩餘風險"
+      ]
+    },
+    {
+      "id": 14,
+      "name": "zh-existing-target-stale-file",
+      "type": "functional",
+      "language": "zh",
+      "trigger_class": "direct",
+      "coverage_tags": ["should-trigger", "edge-case", "regression"],
+      "prompt": "用 codex 再出一張貓咪插畫 1:1，一樣存到 ~/exports/cat.png（那個檔案上次已經有了）",
+      "expected_output": "Step 0 發現目標檔已存在，先詢問覆寫或改檔名；等檔與驗證都帶 --since <baseline>，舊檔不會被當成本次結果；locate/recover 只有在使用者同意後才加 --overwrite。",
+      "files": [],
+      "expectations": [
+        "驅動 Codex 前先詢問是否覆寫既有 ~/exports/cat.png",
+        "verify 帶 --since baseline，舊檔回報 stale FAIL",
+        "未經同意不使用 --overwrite"
+      ]
     }
   ]
 }

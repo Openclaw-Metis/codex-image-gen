@@ -1,3 +1,0 @@
-# Telemetry playbook
-
-[TODO]

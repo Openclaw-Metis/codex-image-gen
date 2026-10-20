@@ -5,10 +5,10 @@ archetype: ops
 primary_structure_pattern: pipeline
 lifecycle:
   created_at: 2026-06-26
-  last_validated_at: null
-  last_released_at: null
+  last_validated_at: 2026-10-20
+  last_released_at: 2026-10-20
   review_interval_days: 60
-  next_review_due: 2026-08-25
+  next_review_due: 2026-12-19
 support:
   primary_hosts:
     - agent-skills
@@ -21,8 +21,10 @@ risk:
 dependencies:
   scripts:
     - scripts/codex_image.py
+    - scripts/test_codex_image.py
   references:
     - references/readiness_report.md
+    - references/windows-host.md
 stewardship:
   reviewers: []
   stale_after_days: 120
